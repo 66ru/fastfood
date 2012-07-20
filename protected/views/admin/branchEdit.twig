@@ -1,0 +1,25 @@
+{% set form = this.beginWidget('bootstrap.widgets.TbActiveForm', {
+	'type' : 'horizontal',
+	'enableClientValidation': true,
+	'clientOptions': {'validateOnSubmit': true},
+	'htmlOptions' : {'enctype' : 'multipart/form-data'},
+})|raw %}
+{{ form.textFieldRow(model,'branch')|raw }}
+{{ C.Html.hiddenField('branchId',model.id)|raw }}
+
+<div style="text-align:right">
+	{{ widget('bootstrap.widgets.TbButton', {
+		'type' : 'primary',
+        'size':'mini',
+		'label' : 'Сохранить',
+        'htmlOptions' : {'class':'updateBranch'}
+	}) }}
+
+	{{ widget('bootstrap.widgets.TbButton', {
+		'label' : 'Отменить',
+        'size':'mini',
+        'htmlOptions' : {'class':'cancelBranch'}
+	}) }}
+</div>
+{{ void(this.endWidget())|raw }}
+

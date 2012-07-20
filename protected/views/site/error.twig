@@ -1,0 +1,27 @@
+{% extends 'views/layouts/main.twig' %}
+
+{% block header %}
+{% endblock %}
+{% block content %}
+<div class="row">
+	<div class="span12">
+		<div class="rounded last" style="min-height: 700px;">
+			<h2>
+				{% if code == 404 %}
+				{{ code }} - Страница не найдена
+				{% elseif code == 403 %}
+				{{ code }} - Доступ запрещен
+				{% elseif code == 500 %}
+				{{ code }} - Ошибка на сервере
+				{% else %}
+				Ошибка {{code}}
+				{% endif %}
+			</h2>
+			{% if message %}
+			<p>{{message}}</p>
+			{% endif %}
+		</div>
+	</div>
+</div>
+{% endblock %}
+

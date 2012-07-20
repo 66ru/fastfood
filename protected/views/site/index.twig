@@ -1,0 +1,151 @@
+{% extends 'views/layouts/main.twig' %}
+{% block content %}
+    <div class="row">
+        <div class="span8">
+
+            <div class="rounded last">
+                <h4>Последние заявки</h4>
+                {{ App.user.setFlash('info', '<center>Всего '~count~' '~static('StringHelper','plural',{0:count,1:['заявка','заявки','заявок']})~'</center>') }}
+                {{ widget('bootstrap.widgets.TbAlert',{
+                    'closeText': '',
+                    'block': false,
+                    'fade': true,
+                }) }}
+                <div class="report-list">
+                    {% set lastId = 0 %}
+                    {% set firstId = 0 %}
+                    {% for ticket in tickets %}
+                        {% if lastId<ticket.id %}
+                            {% set lastId = ticket.id %}
+                        {% endif %}
+                        {% if firstId>ticket.id or firstId==0 %}
+                            {% set firstId = ticket.id %}
+                        {% endif %}
+
+                        <div class="report-item">
+                            <a href="{{ C.Html.normalizeUrl({0:'/tickets/tickets/item','id':ticket.id}) }}">
+                            <div class="report-item-content report">
+                                <div class="report-image">
+                                    <img src="{{ ticket.listThumbnail }}" alt="{{ ticket.type.name }}">
+                                </div>
+                                <div class="report-content">
+                                    <div class="report-row">
+                                        <span class="report-title">{{ ticket.type.name }}</span>
+                                    </div>
+                                    <div class="report-row">
+                                        {{ ticket.house.name }}
+                                    </div>
+                                    <div class="report-row">
+                                        <span class="report-info">{{ ticket.description }}</span>
+                                    </div>
+                                    <div class="report-row">
+                                        <span class="report-status">{{ ticket.textStatus }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            </a>
+                            <span class="report-actions">
+                                {{ ticket.favoriteLink|raw }}
+                            </span>
+                        </div>
+
+
+                    {% endfor %}
+                    {% if limit<count %}
+                        <div id="showMore"><a href="#">Показать еще</a></div>
+                    {% endif %}
+                </div>
+
+                <script>
+                    var lastId = {{ lastId }};
+                    var firstId = {{ firstId }};
+                    var timer = setInterval(function() {
+                        $.ajax({
+                            type: "POST",
+                            url: "/reports/fresh",
+                            dataType: "json",
+                            data: { lastId: lastId },
+                            success: function(data) {
+                                for(var i=0, arrayLength=data.items.length; i < arrayLength; i++) {
+                                    var html =
+                                        '<div class="report-item">'+
+                                            '<div class="report-item-content report">'+
+                                                '<div class="report-image">'+
+                                                    '<a href="'+data.items[i].link+'"><img src="'+data.items[i].img+'" alt="'+ data.items[i].type +'"></a>'+
+                                                '</div>'+
+                                                '<div class="report-content">'+
+                                                    '<div class="report-row">'+
+                                                        '<span class="report-title">'+ data.items[i].type +'</span>'+
+                                                    '</div>'+
+                                                    '<div class="report-row">'+
+                                                        data.items[i].house +
+                                                    '</div>'+
+                                                    '<div class="report-row">'+
+                                                        '<span class="report-info">'+ data.items[i].description +'</span>'+
+                                                    '</div>'+
+                                                    '<div class="report-row">'+
+                                                        '<span class="report-status">'+ data.items[i].open +'</span>'+
+                                                        '<span class="report-actions"><a href="'+data.items[i].link+'">Подробнее</a></span>'+
+                                                    '</div>'+
+                                                '</div>'+
+                                            '</div>'+
+                                        '</div>';
+                                    $(html).hide().prependTo(".report-list").fadeIn("slow");
+                                    lastId = data.items[i].id;
+                                }
+                                $('#yw2 center').html(data.count);
+                            }
+                        });
+                    }, 10000);
+                    $(function() {
+                        $('#showMore').bind('click', function(){
+                            $.ajax({
+                                type: "POST",
+                                url: "/tickets/more",
+                                dataType: "json",
+                                data: { firstId: firstId, limit: {{ limit }} },
+                                success: function(data) {
+                                    for(var i=0, arrayLength=data.items.length; i < arrayLength; i++) {
+                                        var html =
+                                            '<div class="report-item">'+
+                                                '<div class="report-item-content report">'+
+                                                    '<div class="report-image">'+
+                                                        '<a href="'+data.items[i].link+'"><img src="'+data.items[i].img+'" alt="'+ data.items[i].type +'"></a>'+
+                                                    '</div>'+
+                                                    '<div class="report-content">'+
+                                                        '<div class="report-row">'+
+                                                            '<span class="report-title">'+ data.items[i].type +'</span>'+
+                                                        '</div>'+
+                                                        '<div class="report-row">'+
+                                                            data.items[i].house +
+                                                        '</div>'+
+                                                        '<div class="report-row">'+
+                                                            '<span class="report-info">'+ data.items[i].description +'</span>'+
+                                                        '</div>'+
+                                                        '<div class="report-row">'+
+                                                            '<span class="report-status">'+ data.items[i].open +'</span>'+
+                                                            '<span class="report-actions"><a href="'+data.items[i].link+'">Подробнее</a></span>'+
+                                                        '</div>'+
+                                                    '</div>'+
+                                                '</div>'+
+                                            '</div>';
+                                        $(html).hide().insertBefore("#showMore").fadeIn("slow");
+                                        firstId = data.items[i].id;
+                                        if(!data.more)
+                                        {
+                                            $('#showMore').hide();
+                                        }
+                                    }
+                                }
+                            });
+                            this.preventDefault();
+                        })
+                    });
+                </script>
+            </div>
+        </div>
+        <div class="span4">
+            {{ settings('indexRightBlock') }}
+        </div>
+    </div>
+{% endblock %}

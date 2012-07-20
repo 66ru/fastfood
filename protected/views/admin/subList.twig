@@ -1,0 +1,10 @@
+<style>
+    .timeout td{background-color:red !important;}
+</style>
+{{ widget('bootstrap.widgets.TbGridView', {
+'type' : 'condensed striped',
+'template':"{items}",
+'dataProvider' : provider,
+'columns' : columns,
+'rowCssClassExpression': '((time()-$data->lastUpdate)>'~timeout~')?"timeout":"normal"'
+})|raw }}

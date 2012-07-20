@@ -1,0 +1,86 @@
+{% extends 'views/layouts/admin.twig' %}
+
+{% block content %}
+    <h1>Список {{ this.modelHumanTitle[2] }}</h1>
+
+    {% if canAdd %}
+        {{ widget('bootstrap.widgets.TbButton', {
+        'buttonType' : 'link',
+        'type' : 'primary',
+        'icon' : 'plus white',
+        'label' : 'Добавить '~this.modelHumanTitle[0],
+        'url' : ['add'],
+        }) }}
+    {% endif %}
+
+    {{ widget('bootstrap.widgets.TbGridView', {
+    'type' : 'condensed striped',
+    'dataProvider' : model.search(),
+    'filter' : model,
+    'columns' : columns,
+    'rowCssClassExpression': rowCssClassExpression,
+    }) }}
+
+    <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+          <h3 id="myModalLabel">Зарегистрированные ноды</h3>
+        </div>
+        <div class="modal-body">
+          <p>Загрузка...</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" data-dismiss="modal" aria-hidden="true">Закрыть</button>
+        </div>
+    </div>​
+
+    <script>
+        var target;
+        $("a[data-target=#myModal]").click(function(ev) {
+            ev.preventDefault();
+            target = $(this).attr("href");
+            // load the url and show modal on success
+            $("#myModal .modal-body").load(target, function() {
+                 $("#myModal").modal("show");
+                $('#myModal').delegate('a[rel="tooltip"]','click',function(e){
+                    innerTarget = $(this).attr("href");
+
+                    $("#myModal .modal-body").load(innerTarget);
+                    e.preventDefault();
+                })
+            });
+        });
+        $(".fireEnvironment").click(function(ev) {
+            $.ajax({
+                url: this.href,
+                type: 'get',
+                dataType: 'json',
+                success: function(data)
+                {
+                    if(data.status=='ok') alert('В ближайшее время ноды будут обновлены');
+                }
+            });
+            ev.preventDefault();
+        });
+        $('#myModal').delegate('.updateBranch','click',function(ev){
+            branch = $('#branchId').val();
+            value = $('#Nodes_branch').val();
+            $.ajax({
+                url: '/admin/Environment/editBranch?id='+branch+'&val='+value,
+                type: 'get',
+                dataType: 'json',
+                success: function(data)
+                {
+                    $("#myModal .modal-body").load(target);
+                }
+            });
+
+            ev.preventDefault();
+        });
+        $('#myModal').delegate('.cancelBranch','click',function(ev){
+            $("#myModal .modal-body").load(target);
+            ev.preventDefault();
+        });
+    </script>
+
+{% endblock %}

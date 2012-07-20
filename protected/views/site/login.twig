@@ -1,0 +1,27 @@
+{% extends 'views/layouts/admin.twig' %}
+{% block mainMenu %}{% endblock %}
+{% block content %}
+
+<div class="form" style="width:310px; margin: 0 auto;">
+    <h1>Войти</h1>
+
+    {% set form = this.beginWidget('bootstrap.widgets.TbActiveForm', {
+        'enableClientValidation': true,
+        'clientOptions': {'validateOnSubmit': true},
+        'id': 'verticalForm',
+        'htmlOptions': {'class': 'well'},
+    }, true) %}
+
+    {{ form.textFieldRow(loginForm, 'email', { 'class': 'span3' })|raw }}
+    {{ form.passwordFieldRow(loginForm, 'password', { 'class': 'span3'})|raw }}
+    {{ form.checkboxRow(loginForm, 'rememberMe')|raw }}
+    {{ widget('bootstrap.widgets.TbButton', {
+        'buttonType': 'submit',
+        'label': 'Войти'
+    })|raw }}
+
+    {{ Yii.void(this.endWidget()) }}
+
+</div><!-- form -->
+
+{% endblock %}

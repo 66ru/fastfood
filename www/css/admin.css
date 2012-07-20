@@ -1,0 +1,54 @@
+body {
+	padding-top: 60px;
+	padding-bottom: 60px;
+}
+
+@media (max-width: 980px) {
+	body {
+		padding-top: 0;
+	}
+}
+
+h1, h2, h3, h4, h5, h6 {
+	margin-bottom: 0.6em;
+}
+
+.uneditable-input {
+	height: auto;
+	min-height: 18px;
+	overflow: scroll;
+}
+
+#ajaxLoader {
+	width: 32px;
+	height: 32px;
+	position: absolute;
+	top: 50px;
+	background: url('../images/ajaxLoader.gif');
+	display: none;
+}
+
+tr.child td:first-child {
+    padding-left: 20px;
+}
+
+tr.grey td:first-child {
+    color: #a9a9a9;
+}
+
+.grid-view .button-column
+{
+	width: 100px;
+	text-align: left;
+}
+.grid-view .button-column a {
+	margin: 0 5px;
+}
+textarea {
+	width: 400px;
+	height: 160px;
+}
+
+#yandexMaps {
+	width: 630px !important;
+}

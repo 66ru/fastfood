@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="language" content="en" />
+
+    {{ void(App.bootstrap.registerAllCss()) }}
+    {{ void(App.bootstrap.registerCoreScripts()) }}
+
+    {{ void(App.clientScript.registerCssFile(App.request.baseUrl~'/css/admin.css')) }}
+
+    <title>{% block title %}{{ this.pageTitle }}{% endblock %}</title>
+</head>
+
+<body>
+<div id="ajaxLoader">&nbsp;</div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        var ajaxInProgress = false;
+
+        $(document).ajaxStart(function() {
+            ajaxInProgress = true;
+            setTimeout(function() {
+                if (ajaxInProgress)
+                    $('#ajaxLoader').css('left',$(document).width()/2+'px').fadeIn(300).animate({
+                        left:'+=400'
+                    },{
+                        'duration' : 10000,
+                        'easing' : 'linear',
+                        'queue' : false
+                    });
+            }, 2000);
+        });
+        $(document).ajaxStop(function() {
+            ajaxInProgress = false;
+            $('#ajaxLoader').fadeOut(300);
+        });
+    });
+</script>
+
+{% block mainMenu %}
+{{ widget('bootstrap.widgets.TbNavbar',{
+    'collapse' : true,
+    'items':[
+    {
+        'class' : 'bootstrap.widgets.TbMenu',
+        'items' : [
+            {'label':'Вернуться на сайт', 'url':['/site/index']},
+            {'label':'Пользователи', 'url':['/admin/adminUsers'], 'active' : this.id == 'admin/adminUsers', 'visible': App.user.checkAccess('admin') },
+            {'label':'Партнеры', 'url':['/admin/adminEnvironment'], 'active' : this.id == 'admin/adminEnvironment', 'visible': App.user.checkAccess('admin') },
+            {'label':'Настройки', 'url':['/admin/adminSettings'], 'active' : this.id == 'admin/adminSettings', 'visible': App.user.checkAccess('admin') },
+        ]
+    },{
+        'class' : 'bootstrap.widgets.TbMenu',
+        'htmlOptions' : {'class':'pull-right'},
+        'items' : [
+            {'label':'Выйти ('~App.user.name~')', 'url':['/site/logout'], 'visible':not App.user.isGuest}
+        ]
+    }]
+}) }}
+{% endblock %}
+
+<div class="container" id="page">
+    {% block content %}{% endblock %}
+</div><!-- page -->
+
+</body>
+</html>

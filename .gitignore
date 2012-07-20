@@ -1,0 +1,5 @@
+/protected/config/params.php
+.idea
+www/storage/
+.DS_Store
+*.log
