@@ -106,6 +106,68 @@ class ApiController extends Controller
             throw new CHttpException(404);
     }
 
+    public function actionNode()
+    {
+        if(!empty($_GET['node']) && !empty($_GET['env']) && !empty($_GET['appname']))
+        {
+            $criteria = new CDbCriteria();
+            $criteria->addCondition('envName=:envName');
+            $criteria->params = array(':envName' => $_GET['env']);
+            $environment = Environment::model()->with('nodes')->find($criteria);
+            if(!$environment)
+                throw new CHttpException(404);
+            $criteria = new CDbCriteria();
+            $criteria->addCondition('envId=:envId');
+            $criteria->addCondition('hostname=:hostname');
+            $criteria->addCondition('role=:role');
+            $criteria->params = array(
+                ':envId' => $environment->id,
+                ':hostname' => $_GET['node'],
+                ':role' => $_GET['appname'],
+            );
+            $node = Nodes::model()->find($criteria);
+            if(!$node) {
+                throw new CHttpException(404);
+            }
+            else {
+                $res = array (
+                    'id' => $node->id,
+                    'hostname' => $node->hostname,
+                    'role' => $node->role,
+                    'lastUpdate' => $node->lastUpdate,
+                    'lastCompletedDeploy' => $node->lastCompletedDeploy,
+                    'needDeploy' => $node->needDeploy,
+                    'branch' => $node->branch,
+                    'environment' => array (
+                            'id' => $environment->id,
+                            'name' => $environment->name,
+                            'envName' => $environment->envName,
+                            'schedule' => $environment->schedule,
+                            'adminMail' => $environment->adminMail,
+                            'nextDeploy' => $environment->nextDeploy,
+                        ),
+                    'deployment' => false,
+                );
+                $criteria = new CDbCriteria();
+                $criteria->addCondition('nodeId=:nodeId');
+                $criteria->addCondition('timeFinished IS NOT NULL');
+                $criteria->params = array(':nodeId' => $node->id);
+                $deployment = Deployment::model()->find($criteria);
+                if($deployment){
+                    $res['deployment'] = array (
+                            'id' => $deployment->id,
+                            'timeStarted' => $deployment->timeStarted,
+                            'timeFinished' => $deployment->timeFinished,
+                        );
+                }
+                echo CJSON::encode($res);
+            }
+            Yii::app()->end();
+        }
+        else
+            throw new CHttpException(404);
+    }
+
     public function actionDone()
     {
         if(!empty($_GET['node']) && !empty($_GET['env']) && !empty($_GET['appname']))
